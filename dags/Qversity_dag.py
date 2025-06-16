@@ -127,6 +127,12 @@ def bronze_layer():
     conn.close()
     logging.info("Bronze layer done!")
 
+def silver_layer():
+    pass
+
+def gold_layer():
+    pass
+
 
 default_args = {
     "owner": "qversity",
@@ -152,4 +158,15 @@ bronze_layer = PythonOperator(
 )
 
 
-bronze_layer
+silver_layer = BashOperator(
+    task_id="silver_layer_task",
+    dag=dag,
+    bash_command="docker exec qversity-dbt-1 dbt run"
+)
+
+
+gold_layer = PythonOperator(
+    task_id="gold_layer_task", python_callable=gold_layer, dag=dag
+)
+
+bronze_layer >> silver_layer >> gold_layer

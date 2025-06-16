@@ -106,5 +106,4 @@ Thumbs.db
 *.pem
 .env.local
 .env.production
-
 .pre-commit-config.yaml
