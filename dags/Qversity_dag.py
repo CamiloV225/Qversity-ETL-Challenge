@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from airflow.operators.python_operator import PythonOperator
+from airflow.operators.bash import BashOperator
+from airflow.providers.docker.operators.docker import DockerOperator
 from airflow import DAG
 from dotenv import load_dotenv
 import json
@@ -46,6 +48,52 @@ def create_tables(conn, cursor):
     """)
     conn.commit()
 
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS customers (
+            customer_id BIGINT PRIMARY KEY,
+            first_name TEXT,
+            last_name TEXT,
+            email TEXT,
+            phone_number TEXT,
+            age INT CHECK (age >= 0),
+            country VARCHAR(5),
+            city TEXT,
+            operator TEXT,
+            plan_type TEXT,
+            monthly_data_gb NUMERIC,
+            monthly_bill_usd NUMERIC,
+            registration_date DATE,
+            status TEXT,
+            device_brand TEXT,
+            device_model TEXT,
+            record_uuid UUID,
+            last_payment_date DATE,
+            credit_limit NUMERIC,
+            data_usage_current_month NUMERIC,
+            latitude NUMERIC,
+            longitude NUMERIC,
+            credit_score INT
+        );
+    """)
+    conn.commit()
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS contracted_services (
+            customer_id BIGINT REFERENCES customers(customer_id),
+            service TEXT
+        );
+    """)
+    conn.commit()
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS payment_history (
+            customer_id BIGINT REFERENCES customers(customer_id),
+            payment_date DATE,
+            status TEXT,
+            amount NUMERIC
+        );
+    """)
+    conn.commit()
     logging.info("Table creation Successfully!")
 
 
@@ -99,7 +147,7 @@ default_args = {
 dag = DAG(
     "qversity_project_JCV",
     default_args=default_args,
-    description="A simple hello world DAG",
+    description="Qversity Final Project",
     schedule_interval=timedelta(days=1),
     catchup=False,
 )
