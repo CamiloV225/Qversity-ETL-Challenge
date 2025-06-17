@@ -9,4 +9,4 @@ qversity:
       port: 5432
       dbname: "{{ env_var('POSTGRES_DB') }}"
       schema: public
-      threads: 1 
+      threads: 1

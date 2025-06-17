@@ -4,10 +4,10 @@ WITH source AS (
     SELECT 
         CASE
             WHEN LOWER(raw_data ->> 'country') = 'colombia' AND LOWER(raw_data ->> 'city') = 'bogotá' THEN 1 
-            WHEN LOWER(raw_data ->> 'country') = 'colombia' AND LOWER(raw_data ->> 'city') = 'medellín' THEN 2 
+            WHEN LOWER(raw_data ->> 'country') = 'colombia' AND LOWER(raw_data ->> 'city') = 'medellin' THEN 2 
             WHEN LOWER(raw_data ->> 'country') = 'colombia' AND LOWER(raw_data ->> 'city') = 'barranquilla' THEN 3 
             WHEN LOWER(raw_data ->> 'country') = 'colombia' AND LOWER(raw_data ->> 'city') = 'cali' THEN 4 
-            WHEN LOWER(raw_data ->> 'country') = 'chile'    AND LOWER(raw_data ->> 'city') = 'santiago de chile' THEN 5 
+            WHEN LOWER(raw_data ->> 'country') = 'chile'    AND LOWER(raw_data ->> 'city') = 'santiago' THEN 5 
             WHEN LOWER(raw_data ->> 'country') = 'chile'    AND LOWER(raw_data ->> 'city') = 'concepción' THEN 6 
             WHEN LOWER(raw_data ->> 'country') = 'chile'    AND LOWER(raw_data ->> 'city') = 'valparaíso' THEN 7 
             WHEN LOWER(raw_data ->> 'country') = 'peru'     AND LOWER(raw_data ->> 'city') = 'trujillo' THEN 8 
@@ -22,7 +22,19 @@ WITH source AS (
             ELSE 999
         END AS id,
         TRIM(LOWER(raw_data ->> 'country')) AS country,
-        TRIM(LOWER(raw_data ->> 'city')) AS city
+        case
+            when lower(raw_data ->> 'city') ilike 'are%' then 'arequipa'
+            when lower(raw_data ->> 'city') ilike 'bog%' then 'bogotá'
+            when lower(raw_data ->> 'city') ilike 'cal%' then 'cali'
+            when lower(raw_data ->> 'city') ilike 'cd%' or lower(raw_data ->> 'city') ilike 'ciudad%' then 'ciudad de méxico'
+            when lower(raw_data ->> 'city') ilike 'con%' then 'concepción'
+            when lower(raw_data ->> 'city') ilike 'cor%' then 'córdoba'
+            when lower(raw_data ->> 'city') ilike 'gua%' then 'guadalajara'
+            when lower(raw_data ->> 'city') ilike 'me%' then 'medellín'
+            when lower(raw_data ->> 'city') ilike 'san%' then 'santiago de chile'
+            when lower(raw_data ->> 'city') ilike 'val%'then 'valparaíso'
+            else lower(raw_data ->> 'city')
+        end as city
     FROM {{ source('raw', 'raw_customers') }}
     WHERE
         raw_data ->> 'country' IS NOT NULL
@@ -32,8 +44,7 @@ WITH source AS (
     GROUP BY id, country, city
 )
 
-SELECT *
+SELECT DISTINCT id, country, city
 FROM source
 WHERE id < 17
-GROUP BY id, country, city
 ORDER BY id

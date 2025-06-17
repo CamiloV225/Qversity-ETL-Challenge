@@ -142,13 +142,12 @@ locations_base as (
     from {{ ref('locations') }}
 )
 
---select c.customer_id, c.first_name, c.last_name, c.email, c.phone_number, c.age, l.location_id, 
---c.operator, c.monthly_data_gb, c.monthly_bill_usd, c.registration_date, c.status, c.device_brand, 
---c.device_model, c.last_payment_date, c.credit_limit, c.data_usage_current_month, c.credit_score, 
---c.latitude, c.longitude, c.ingestion_time, c.batch_id, c.source_file    
-select *
+select c.customer_id, c.first_name, c.last_name, c.email, c.phone_number, c.age, l.location_id, 
+c.operator, c.monthly_data_gb, c.monthly_bill_usd, c.registration_date, c.status, c.device_brand, 
+c.device_model, c.last_payment_date, c.credit_limit, c.data_usage_current_month, c.credit_score, 
+c.latitude, c.longitude, c.ingestion_time, c.batch_id, c.source_file    
 from source c
---left join locations_base l
---  on c.city = l.city
+left join locations_base l
+  on c.city = l.city
 
 ORDER BY customer_id
