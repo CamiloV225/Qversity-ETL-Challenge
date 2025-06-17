@@ -7,34 +7,34 @@ WITH source AS (
             WHEN LOWER(raw_data ->> 'country') = 'colombia' AND LOWER(raw_data ->> 'city') = 'medellin' THEN 2 
             WHEN LOWER(raw_data ->> 'country') = 'colombia' AND LOWER(raw_data ->> 'city') = 'barranquilla' THEN 3 
             WHEN LOWER(raw_data ->> 'country') = 'colombia' AND LOWER(raw_data ->> 'city') = 'cali' THEN 4 
-            WHEN LOWER(raw_data ->> 'country') = 'chile'    AND LOWER(raw_data ->> 'city') = 'santiago' THEN 5 
-            WHEN LOWER(raw_data ->> 'country') = 'chile'    AND LOWER(raw_data ->> 'city') = 'concepción' THEN 6 
-            WHEN LOWER(raw_data ->> 'country') = 'chile'    AND LOWER(raw_data ->> 'city') = 'valparaíso' THEN 7 
-            WHEN LOWER(raw_data ->> 'country') = 'peru'     AND LOWER(raw_data ->> 'city') = 'trujillo' THEN 8 
-            WHEN LOWER(raw_data ->> 'country') = 'peru'     AND LOWER(raw_data ->> 'city') = 'lima' THEN 9 
-            WHEN LOWER(raw_data ->> 'country') = 'peru'     AND LOWER(raw_data ->> 'city') = 'arequipa' THEN 10 
-            WHEN LOWER(raw_data ->> 'country') = 'mexico'   AND LOWER(raw_data ->> 'city') = 'guadalajara' THEN 11 
-            WHEN LOWER(raw_data ->> 'country') = 'mexico'   AND LOWER(raw_data ->> 'city') = 'ciudad de méxico' THEN 12
-            WHEN LOWER(raw_data ->> 'country') = 'mexico'   AND LOWER(raw_data ->> 'city') = 'monterrey' THEN 13 
+            WHEN LOWER(raw_data ->> 'country') = 'chile' AND LOWER(raw_data ->> 'city') = 'santiago' THEN 5 
+            WHEN LOWER(raw_data ->> 'country') = 'chile' AND LOWER(raw_data ->> 'city') = 'concepción' THEN 6 
+            WHEN LOWER(raw_data ->> 'country') = 'chile' AND LOWER(raw_data ->> 'city') = 'valparaíso' THEN 7 
+            WHEN LOWER(raw_data ->> 'country') = 'peru' AND LOWER(raw_data ->> 'city') = 'trujillo' THEN 8 
+            WHEN LOWER(raw_data ->> 'country') = 'peru' AND LOWER(raw_data ->> 'city') = 'lima' THEN 9 
+            WHEN LOWER(raw_data ->> 'country') = 'peru' AND LOWER(raw_data ->> 'city') = 'arequipa' THEN 10 
+            WHEN LOWER(raw_data ->> 'country') = 'mexico' AND LOWER(raw_data ->> 'city') = 'guadalajara' THEN 11 
+            WHEN LOWER(raw_data ->> 'country') = 'mexico' AND LOWER(raw_data ->> 'city') = 'ciudad de méxico' THEN 12
+            WHEN LOWER(raw_data ->> 'country') = 'mexico' AND LOWER(raw_data ->> 'city') = 'monterrey' THEN 13 
             WHEN LOWER(raw_data ->> 'country') = 'argentina' AND LOWER(raw_data ->> 'city') = 'buenos aires' THEN 14 
             WHEN LOWER(raw_data ->> 'country') = 'argentina' AND LOWER(raw_data ->> 'city') = 'córdoba' THEN 15
             WHEN LOWER(raw_data ->> 'country') = 'argentina' AND LOWER(raw_data ->> 'city') = 'rosario' THEN 16 
             ELSE 999
         END AS id,
         TRIM(LOWER(raw_data ->> 'country')) AS country,
-        case
-            when lower(raw_data ->> 'city') ilike 'are%' then 'arequipa'
-            when lower(raw_data ->> 'city') ilike 'bog%' then 'bogotá'
-            when lower(raw_data ->> 'city') ilike 'cal%' then 'cali'
-            when lower(raw_data ->> 'city') ilike 'cd%' or lower(raw_data ->> 'city') ilike 'ciudad%' then 'ciudad de méxico'
-            when lower(raw_data ->> 'city') ilike 'con%' then 'concepción'
-            when lower(raw_data ->> 'city') ilike 'cor%' then 'córdoba'
-            when lower(raw_data ->> 'city') ilike 'gua%' then 'guadalajara'
-            when lower(raw_data ->> 'city') ilike 'me%' then 'medellín'
-            when lower(raw_data ->> 'city') ilike 'san%' then 'santiago de chile'
-            when lower(raw_data ->> 'city') ilike 'val%'then 'valparaíso'
+        CASE
+            WHEN lower(raw_data ->> 'city') ilike 'are%' THEN 'arequipa'
+            WHEN lower(raw_data ->> 'city') ilike 'bog%' THEN 'bogotá'
+            WHEN lower(raw_data ->> 'city') ilike 'cal%' THEN 'cali'
+            WHEN lower(raw_data ->> 'city') ilike 'cd%' or lower(raw_data ->> 'city') ilike 'ciudad%' THEN 'ciudad de méxico'
+            WHEN lower(raw_data ->> 'city') ilike 'con%' THEN 'concepción'
+            WHEN lower(raw_data ->> 'city') ilike 'cor%' THEN 'córdoba'
+            WHEN lower(raw_data ->> 'city') ilike 'gua%' THEN 'guadalajara'
+            WHEN lower(raw_data ->> 'city') ilike 'me%' THEN 'medellín'
+            WHEN lower(raw_data ->> 'city') ilike 'san%' THEN 'santiago de chile'
+            WHEN lower(raw_data ->> 'city') ilike 'val%'THEN 'valparaíso'
             else lower(raw_data ->> 'city')
-        end as city
+        END AS city
     FROM {{ source('raw', 'raw_customers') }}
     WHERE
         raw_data ->> 'country' IS NOT NULL
