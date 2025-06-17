@@ -19,8 +19,8 @@ def download_from_url():
     logging.info("JSON file Downloaded Successfully")
 
 def postgres_connection():
+    
     load_dotenv()
-
     conn = psycopg2.connect(
         host="postgres",
         dbname=os.getenv("POSTGRES_DB"),
