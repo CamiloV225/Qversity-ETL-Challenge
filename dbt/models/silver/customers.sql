@@ -1,7 +1,7 @@
 {{ config(schema='silver') }} 
 with source as (
     select
-        (raw_data ->> 'customer_id')::bigint as customer_id,
+        distinct(raw_data ->> 'customer_id')::bigint as customer_id,
         lower(raw_data ->> 'first_name') as first_name,
         lower(raw_data ->> 'last_name') as last_name,
         case
@@ -9,16 +9,16 @@ with source as (
             else raw_data ->> 'email'
         end as email,
         case
-            when raw_data ->> 'phone_number' ilike '(%' then
+            when raw_data ->> 'phone_number' ILIKE '(%' then
                 regexp_replace(trim(raw_data ->> 'phone_number'), '[^0-9]', '', 'g')::bigint
 
-            when raw_data ->> 'phone_number' ilike '+57%' then 
-                regexp_replace(trim(raw_data ->> 'phone_number'), '[^0-9]', '', 'g')::bigint
+            when raw_data ->> 'phone_number' ILIKE '+57%' then
+                regexp_replace(trim(raw_data ->> 'phone_number'), '^\+57', '')::bigint
 
-            when trim(raw_data ->> 'phone_number') = '' then null 
+            when trim(raw_data ->> 'phone_number') = '' then
+                null
 
-            else
-                regexp_replace(trim(raw_data ->> 'phone_number'), '[^0-9]', '', 'g')::bigint
+            else regexp_replace(trim(raw_data ->> 'phone_number'), '[^0-9]', '', 'g')::bigint
         end as phone_number,
         -- Al mirar mas de cerca los registros de age, encontre que esta posee valores float y valores negativos
         -- Por tal motivo decidi primero formatearlos como numero, luego quitarles los decimales con floor()
@@ -44,7 +44,7 @@ with source as (
             when lower(raw_data ->> 'city') ilike 'con%' then 'concepción'
             when lower(raw_data ->> 'city') ilike 'cor%' then 'córdoba'
             when lower(raw_data ->> 'city') ilike 'gua%' then 'guadalajara'
-            when lower(raw_data ->> 'city') ilike 'me%' then 'medellin'
+            when lower(raw_data ->> 'city') ilike 'me%' then 'medellín'
             when lower(raw_data ->> 'city') ilike 'san%' then 'santiago de chile'
             when lower(raw_data ->> 'city') ilike 'val%'then 'valparaíso'
             else lower(raw_data ->> 'city')
@@ -133,6 +133,22 @@ with source as (
     from {{ source('raw', 'raw_customers') }}
 
     where raw_data ->> 'customer_id' IS NOT NULL
+),
+
+locations_base as (
+    select
+        id as location_id,
+        city
+    from {{ ref('locations') }}
 )
 
-select * from source
+--select c.customer_id, c.first_name, c.last_name, c.email, c.phone_number, c.age, l.location_id, 
+--c.operator, c.monthly_data_gb, c.monthly_bill_usd, c.registration_date, c.status, c.device_brand, 
+--c.device_model, c.last_payment_date, c.credit_limit, c.data_usage_current_month, c.credit_score, 
+--c.latitude, c.longitude, c.ingestion_time, c.batch_id, c.source_file    
+select *
+from source c
+--left join locations_base l
+--  on c.city = l.city
+
+ORDER BY customer_id
