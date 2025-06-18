@@ -1,8 +1,27 @@
-version: 1
+version: 2
 
 sources:
   - name: raw         
     schema: public_bronze       
     tables:
       - name: raw_customers
-     
+
+models:
+  - name: customers
+    description: "Tabla de clientes limpia y transformada."
+    columns:
+      - name: customer_id
+        description: "El identificador único de cada cliente."
+        tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: "El primer nombre del cliente."
+        tests:
+          - not_null
+      - name: last_name
+        description: "El apellido del cliente."
+      - name: email
+        description: "La dirección de correo electrónico del cliente."
+        tests:
+          - unique

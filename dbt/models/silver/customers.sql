@@ -2,10 +2,11 @@
 with source AS (
     SELECT
         DISTINCT(raw_data ->> 'customer_id')::BIGINT AS customer_id,
-        CASE 
-            WHEN lower(raw_data ->> 'first_name') = '' THEN NULL
-            ELSE lower(raw_data ->> 'first_name')
-        END AS first_name,
+        --CASE 
+        --    WHEN lower(raw_data ->> 'first_name') = '' THEN NULL
+        --    ELSE lower(raw_data ->> 'first_name')
+        --END AS first_name,
+        lower(raw_data ->> 'first_name') AS first_name,
         lower(raw_data ->> 'last_name') AS last_name,
         CASE
             WHEN raw_data ->> 'email' = '' THEN NULL
@@ -132,6 +133,7 @@ with source AS (
     FROM {{ source('raw', 'raw_customers') }}
 
     WHERE raw_data ->> 'customer_id' IS NOT NULL
+    AND TRIM(raw_data ->> 'first_name') <> ''
 ),
 
 locations_base AS (
