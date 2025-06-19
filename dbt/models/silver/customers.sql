@@ -1,17 +1,45 @@
-{{ config(schema='silver') }} 
-with source AS (
-    SELECT
-        DISTINCT(raw_data ->> 'customer_id')::BIGINT AS customer_id,
-        --CASE 
-        --    WHEN lower(raw_data ->> 'first_name') = '' THEN NULL
-        --    ELSE lower(raw_data ->> 'first_name')
-        --END AS first_name,
-        lower(raw_data ->> 'first_name') AS first_name,
-        lower(raw_data ->> 'last_name') AS last_name,
+{{ config(schema='silver')}} 
+with customer AS (
+    SELECT 
+        (raw_data ->> 'customer_id')::BIGINT AS customer_id,
+
+        -- Comencé por estandarizar los nombres y apellidos, ya que presentaban inconsistencias como espacios en blanco, 
+        -- caracteres numéricos, y registros incompletos o truncados.
+        CASE 
+            WHEN lower(raw_data ->> 'first_name') = '' THEN NULL
+            WHEN lower(trim(raw_data ->> 'first_name')) ILIKE 'a%' THEN 'ana'
+            WHEN lower(trim(raw_data ->> 'first_name')) ILIKE 'car%' THEN 'carlos'
+            WHEN lower(trim(raw_data ->> 'first_name')) ILIKE 'ju%' THEN 'juan'
+            WHEN lower(trim(raw_data ->> 'first_name')) ILIKE 'lau%' THEN 'laura'
+            WHEN lower(trim(raw_data ->> 'first_name')) ILIKE 'lu%' THEN 'luis'
+            WHEN lower(trim(raw_data ->> 'first_name')) ILIKE 'mara%' THEN 'mara'
+            WHEN lower(trim(raw_data ->> 'first_name')) ILIKE 'mar%' THEN 'maria'
+            WHEN lower(trim(raw_data ->> 'first_name')) ILIKE 'mig%' THEN 'miguel'
+            WHEN lower(trim(raw_data ->> 'first_name')) ILIKE 'pe%' THEN 'pedro'
+            WHEN lower(trim(raw_data ->> 'first_name')) ILIKE 'sof%' THEN 'sofia'
+            ELSE regexp_replace(lower(raw_data ->> 'first_name'), '[^a-z]', '', 'g')
+        END AS first_name,
+
         CASE
-            WHEN raw_data ->> 'email' = '' THEN NULL
-            ELSE raw_data ->> 'email'
+            WHEN lower(raw_data ->> 'last_name') = '' THEN NULL
+            WHEN lower(trim(raw_data ->> 'last_name')) ILIKE 'fern%' THEN 'fernández'
+            WHEN lower(trim(raw_data ->> 'last_name')) ILIKE 'garc%' THEN 'garcía'
+            WHEN lower(trim(raw_data ->> 'last_name')) ILIKE 'gon%' THEN 'gonzález'
+            WHEN lower(trim(raw_data ->> 'last_name')) ILIKE 'fern%' THEN 'fernández'
+            WHEN lower(trim(raw_data ->> 'last_name')) ILIKE 'l%' THEN 'lópez'
+            WHEN lower(trim(raw_data ->> 'last_name')) ILIKE 'mart%' THEN 'martínez'
+            WHEN lower(trim(raw_data ->> 'last_name')) ILIKE 'rodr%' THEN 'rodríguez'
+            WHEN lower(trim(raw_data ->> 'last_name')) ILIKE 'l%' THEN 'lópez'
+            ELSE lower(raw_data ->> 'last_name')
+        END AS last_name,
+
+        CASE
+            WHEN (raw_data ->> 'email') = '' THEN NULL
+            ELSE (raw_data ->> 'email')
         END AS email,
+
+        -- Estandarice los numeros telefonicos debido a que algunos fueron insertados inicialmente con el prefijo del 
+        -- pais o presentaban otras inconsistencias.
         CASE
             WHEN raw_data ->> 'phone_number' ILIKE '(%' THEN
                 regexp_replace(trim(raw_data ->> 'phone_number'), '[^0-9]', '', 'g')::BIGINT
@@ -31,6 +59,7 @@ with source AS (
             ELSE floor((raw_data ->> 'age')::numeric)::int
         END AS age,
         -- Luego estandarice los nombres de los paises y las ciudades
+        -- PD: debido a los cambios realizados decidi prescindir de estas columnas y cree una nueva tabla de forma organizada
         CASE
             WHEN lower(raw_data ->> 'country') ilike 'co%' or lower(raw_data ->> 'country') ilike 'cl%' THEN 'colombia'
             WHEN lower(raw_data ->> 'country') ilike 'p%' THEN 'peru'
@@ -68,6 +97,7 @@ with source AS (
             WHEN lower(raw_data ->> 'plan_type') ilike 'c%' THEN 'control'
             ELSE lower(raw_data ->> 'plan_type')
         END AS plan_type,
+
         (raw_data ->> 'monthly_data_gb')::float AS monthly_data_gb,
         (raw_data ->> 'monthly_bill_usd')::float AS monthly_bill_usd,
         -- En cuanto a los formatos de fecha, los registros poseen principalmente dos variantes: el formato europeo 'DD/MM/YYYY' y 
@@ -100,7 +130,7 @@ with source AS (
             WHEN lower(raw_data ->> 'device_brand') ilike 'x%' THEN 'xiaomi'
             ELSE lower(raw_data ->> 'device_brand')
         END AS device_brand,
-        
+        -- Algunos modelos presentaba caracteres inusuales los cuales fueron removidos
         CASE 
             WHEN raw_data ->> 'device_model' is NULL 
                 or trim(raw_data ->> 'device_model') = '' 
@@ -132,8 +162,8 @@ with source AS (
         source_file
     FROM {{ source('raw', 'raw_customers') }}
 
-    WHERE raw_data ->> 'customer_id' IS NOT NULL
-    AND TRIM(raw_data ->> 'first_name') <> ''
+    WHERE (raw_data ->> 'customer_id') IS NOT NULL AND (raw_data ->> 'email') ~* '^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$'
+    AND (raw_data ->> 'phone_number') ~ '^\d{10}$'
 ),
 
 locations_base AS (
@@ -141,14 +171,28 @@ locations_base AS (
         id AS location_id,
         city
     from {{ ref('locations') }}
+),
+
+-- Se asigna el ID de ubicación a cada cliente mediante una relación con la ciudad, 
+-- considerando que la ciudad proporciona mayor granularidad que el país.
+
+-- Luego se filtran los registros para conservar únicamente un cliente por email, 
+-- ya que existían casos donde un mismo correo electrónico estaba asociado a múltiples customer_id. 
+
+temp_customer AS (
+    SELECT DISTINCT ON (c.email) c.customer_id, c.first_name, c.last_name, c.email, c.phone_number, c.age, l.location_id, 
+    c.operator, c.monthly_data_gb, c.monthly_bill_usd, c.registration_date, c.status, c.device_brand, 
+    c.device_model, c.last_payment_date, c.credit_limit, c.data_usage_current_month, c.credit_score, 
+    c.latitude, c.longitude, c.ingestion_time,c.transformation_time, c.batch_id, c.source_file    
+    from customer c
+    left join locations_base l
+    on c.city = l.city
+    ORDER BY c.email
 )
 
-SELECT c.customer_id, c.first_name, c.last_name, c.email, c.phone_number, c.age, l.location_id, 
-c.operator, c.monthly_data_gb, c.monthly_bill_usd, c.registration_date, c.status, c.device_brand, 
-c.device_model, c.last_payment_date, c.credit_limit, c.data_usage_current_month, c.credit_score, 
-c.latitude, c.longitude, c.ingestion_time,c.transformation_time, c.batch_id, c.source_file    
-from source c
-left join locations_base l
-  on c.city = l.city
+-- Para resolver esta duplicidad cruzada, primero se deduplican los correos y 
+-- posteriormente se aplica una segunda deduplicación por customer_id sobre ese subconjunto.
 
+SELECT DISTINCT ON (customer_id) *
+FROM temp_customer
 ORDER BY customer_id

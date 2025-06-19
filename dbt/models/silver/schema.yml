@@ -12,16 +12,70 @@ models:
     columns:
       - name: customer_id
         description: "El identificador único de cada cliente."
+        data_type: bigint
+        constraints:
+          - type: primary_key
         tests:
           - unique
           - not_null
+
       - name: first_name
         description: "El primer nombre del cliente."
+        data_type: text
         tests:
           - not_null
+
       - name: last_name
         description: "El apellido del cliente."
+        data_type: text
+
       - name: email
         description: "La dirección de correo electrónico del cliente."
+        data_type: text
         tests:
           - unique
+          - not_null
+
+  - name: payment_history
+    description: "Tabla limpia de pagos."
+    columns:
+      - name: customer_id
+        description: "ID único del pago."
+        constraints:
+          - type: primary_key
+        data_type: bigint
+        tests: 
+          - unique
+          - not_null
+          - relationships:
+              to: ref('customers')
+              field: customer_id
+
+  - name: contracted_services
+    description: "Tabla de los servicios contratados."
+    columns:
+      - name: customer_id
+        description: "El identificador único de cada cliente."
+        data_type: bigint
+        constraints:
+          - type: primary_key
+        tests:
+          - unique
+          - not_null
+
+  - name: locations
+    description: "Identificador de la ciudad del cliente en la tabla de ubicaciones."
+    columns:
+      - name: id
+        description: "El identificador de cada ubicacion"
+        data_type: bigint
+        constraints:
+          - type: primary_key
+        tests:
+          - unique
+          - not_null
+        tests:
+          - not_null
+          - relationships:
+              to: ref('customers')
+              field: customer_id
