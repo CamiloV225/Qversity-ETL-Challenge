@@ -29,7 +29,6 @@ with customer AS (
             WHEN lower(trim(raw_data ->> 'last_name')) ILIKE 'l%' THEN 'lópez'
             WHEN lower(trim(raw_data ->> 'last_name')) ILIKE 'mart%' THEN 'martínez'
             WHEN lower(trim(raw_data ->> 'last_name')) ILIKE 'rodr%' THEN 'rodríguez'
-            WHEN lower(trim(raw_data ->> 'last_name')) ILIKE 'l%' THEN 'lópez'
             ELSE lower(raw_data ->> 'last_name')
         END AS last_name,
 
