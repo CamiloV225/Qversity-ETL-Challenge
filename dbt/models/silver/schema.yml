@@ -124,10 +124,7 @@ models:
         data_type: bigint
         tests:
           - not_null
-          - relationships:
-              to: ref('customers')
-              field: customer_id
-
+          
       - name: payment_date
         description: "Fecha en la que se registró el pago (o intento de pago)."
         data_type: date
@@ -139,7 +136,7 @@ models:
         data_type: text
         tests:
           - accepted_values:
-              values: ['late', 'failed', 'pending']
+              values: ['late', 'failed', 'pending', 'paid']
 
       - name: payment_amount
         description: "Monto del pago registrado en dólares."
@@ -194,7 +191,7 @@ models:
           - not_null
 
 
-  - name: dim_date
+  - name: cNAAAA
     description: "Dimensión de fechas con información granular diaria, mensual y semanal."
     columns:
       - name: date

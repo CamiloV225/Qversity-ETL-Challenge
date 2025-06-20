@@ -1,7 +1,7 @@
 {{ config(schema='silver')}} 
 with customer AS (
     SELECT 
-        (customer_id)::BIGINT AS customer_id,
+        customer_id,
 
         -- Comencé por estandarizar los nombres y apellidos, ya que presentaban inconsistencias como espacios en blanco, 
         -- caracteres numéricos, y registros incompletos o truncados.
@@ -157,13 +157,15 @@ with customer AS (
         ROUND((longitude)::numeric, 6) AS longitude,
         ingestion_time,
         current_timestamp AS transformation_time,
-        record_uuid,
+        CASE
+            WHEN record_uuid = 'invalid-uuid-6731' THEN NULL
+            ELSE record_uuid
+        END AS record_uuid,
         batch_id,
         source_file
     FROM {{ ref('mobile_customers_cleaned') }}
-
-    WHERE (customer_id) IS NOT NULL AND (email) ~* '^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$'
-    AND (phone_number) ~ '^\d{10}$' AND (record_uuid) IS NOT NULL
+    --(customer_id) IS NOT NULL AND 
+    WHERE phone_number ~ '^\d{10}$' AND email ~* '^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$'
 ),
 
 locations_base AS (
@@ -187,6 +189,9 @@ temp_customer AS (
     from customer c
     left join locations_base l
     on c.city = l.city
+    WHERE age BETWEEN 0 AND 100 
+    AND c.first_name IS NOT NULL
+    AND c.record_uuid IS NOT NULL
     ORDER BY c.email
 )
 

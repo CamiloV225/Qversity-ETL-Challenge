@@ -50,6 +50,9 @@ services:
       - postgres
     environment:
       DBT_PROFILES_DIR: ${DBT_PROFILES_DIR}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
 
   pgadmin:
     image: dpage/pgadmin4

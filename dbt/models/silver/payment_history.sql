@@ -2,7 +2,7 @@
 
 with payment_h as (
     SELECT
-        customer_id::bigint AS customer_id,
+        customer_id,
         payment
     FROM {{ ref('mobile_customers_cleaned') }}
     WHERE jsonb_typeof(payment) = 'array'
@@ -18,10 +18,10 @@ exploded_payments as (
 parsed_payments AS (
     SELECT 
         customer_id,
-        payment_json ->> 'date' AS payment_date,
+        (payment_json ->> 'date')::date AS payment_date,
         CASE
           WHEN payment_json ->> 'amount' = 'unknown' THEN NULL
-          ELSE payment_json ->> 'amount'
+          ELSE (payment_json ->> 'amount')::float
         END AS payment_amount,
         payment_json ->> 'status' AS payment_status
     FROM exploded_payments
