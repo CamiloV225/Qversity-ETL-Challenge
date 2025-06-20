@@ -4,7 +4,7 @@ sources:
   - name: raw         
     schema: public_bronze       
     tables:
-      - name: raw_customers
+      - name: mobile_customers_cleaned
 
 models:
   - name: customers
@@ -36,46 +36,214 @@ models:
           - unique
           - not_null
 
+      - name: phone_number
+        description: "Número de teléfono del cliente."
+        data_type: text
+
+      - name: age
+        description: "Edad del cliente."
+        data_type: integer
+
+      - name: country
+        description: "País de residencia del cliente."
+        data_type: text
+
+      - name: city
+        description: "Ciudad de residencia del cliente."
+        data_type: text
+
+      - name: operator
+        description: "Nombre del operador móvil del cliente."
+        data_type: text
+
+      - name: plan_type
+        description: "Tipo de plan del cliente (prepago o pospago)."
+        data_type: text
+
+      - name: monthly_data_gb
+        description: "Cantidad de datos contratados por mes (en GB)."
+        data_type: float
+
+      - name: monthly_bill_usd
+        description: "Valor de la factura mensual en dólares."
+        data_type: float
+
+      - name: registration_date
+        description: "Fecha de registro del cliente."
+        data_type: date
+
+      - name: status
+        description: "Estado actual del cliente (activo, suspendido, etc...)."
+        data_type: text
+
+      - name: device_brand
+        description: "Marca del dispositivo del cliente."
+        data_type: text
+
+      - name: device_model
+        description: "Modelo del dispositivo del cliente."
+        data_type: text
+
+      - name: record_uuid
+        description: "Identificador único del registro (UUID)."
+        data_type: text
+        tests:
+          - unique
+
+      - name: last_payment_date
+        description: "Última fecha de pago del cliente."
+        data_type: date
+
+      - name: credit_limit
+        description: "Límite de crédito asignado al cliente."
+        data_type: float
+
+      - name: data_usage_current_month
+        description: "Consumo de datos en el mes actual (GB)."
+        data_type: float
+
+      - name: latitude
+        description: "Latitud de ubicación del cliente."
+        data_type: float
+
+      - name: longitude
+        description: "Longitud de ubicación del cliente."
+        data_type: float
+
+      - name: location_id
+        description: "Identificador único de la ubicación (derivado de lat/lon o tabla de referencia geográfica)."
+        data_type: integer
+        tests:
+          - not_null
+
   - name: payment_history
-    description: "Tabla limpia de pagos."
+    description: "Historial de pagos realizados por cada cliente, incluyendo estado, fecha y monto."
     columns:
       - name: customer_id
-        description: "ID único del pago."
-        constraints:
-          - type: primary_key
+        description: "Identificador del cliente relacionado con el pago."
         data_type: bigint
-        tests: 
-          - unique
+        tests:
           - not_null
           - relationships:
               to: ref('customers')
               field: customer_id
 
-  - name: contracted_services
-    description: "Tabla de los servicios contratados."
+      - name: payment_date
+        description: "Fecha en la que se registró el pago (o intento de pago)."
+        data_type: date
+        tests:
+          - not_null
+
+      - name: payment_status
+        description: "Estado del pago: 'late', 'failed' o 'pending'."
+        data_type: text
+        tests:
+          - accepted_values:
+              values: ['late', 'failed', 'pending']
+
+      - name: payment_amount
+        description: "Monto del pago registrado en dólares."
+        data_type: numeric
+
+
+  - name: customer_services
+    description: "Servicios contratados por los clientes, como SMS, VOICE, ROAMING o INTERNATIONAL."
     columns:
       - name: customer_id
-        description: "El identificador único de cada cliente."
+        description: "Identificador del cliente que contrató el servicio."
         data_type: bigint
-        constraints:
-          - type: primary_key
         tests:
-          - unique
           - not_null
+          - relationships:
+              to: ref('customers')
+              field: customer_id
+
+      - name: contracted_service
+        description: "Nombre del servicio contratado por el cliente."
+        data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['sms', 'voice', 'roaming', 'international', 'data']
 
   - name: locations
-    description: "Identificador de la ciudad del cliente en la tabla de ubicaciones."
+    description: "Dimensión geográfica que contiene las combinaciones únicas de país y ciudad."
     columns:
       - name: id
-        description: "El identificador de cada ubicacion"
-        data_type: bigint
+        description: "Identificador único de la combinación país-ciudad."
+        data_type: integer
         constraints:
           - type: primary_key
         tests:
           - unique
           - not_null
-        tests:
-          - not_null
           - relationships:
               to: ref('customers')
-              field: customer_id
+              field: location_id
+
+      - name: country
+        description: "Nombre del país en minúsculas."
+        data_type: text
+        tests:
+          - not_null
+
+      - name: city
+        description: "Nombre de la ciudad."
+        data_type: text
+        tests:
+          - not_null
+
+
+  - name: dim_date
+    description: "Dimensión de fechas con información granular diaria, mensual y semanal."
+    columns:
+      - name: date
+        description: "Fecha calendario."
+        data_type: date
+        constraints:
+          - type: primary_key
+        tests:
+          - unique
+          - not_null
+
+      - name: year
+        description: "Año de la fecha."
+        data_type: integer
+        tests:
+          - not_null
+
+      - name: month
+        description: "Mes numérico (1–12)."
+        data_type: integer
+        tests:
+          - not_null
+
+      - name: day
+        description: "Día del mes."
+        data_type: integer
+        tests:
+          - not_null
+
+      - name: weekday
+        description: "Nombre del día de la semana."
+        data_type: text
+        tests:
+          - not_null
+
+      - name: month_name
+        description: "Nombre del mes."
+        data_type: text
+        tests:
+          - not_null
+
+      - name: week_start
+        description: "Fecha del inicio de la semana correspondiente."
+        data_type: date
+        tests:
+          - not_null
+
+      - name: month_start
+        description: "Fecha del primer día del mes correspondiente."
+        data_type: date
+        tests:
+          - not_null

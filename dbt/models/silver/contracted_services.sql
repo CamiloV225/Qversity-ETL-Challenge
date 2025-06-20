@@ -9,5 +9,5 @@ with source as (
 
 SELECT
   customer_id,
-  service AS contracted_service
+  lower(service) AS contracted_service
 FROM source

@@ -157,12 +157,13 @@ with customer AS (
         (raw_data ->> 'longitude')::float AS longitude,
         ingestion_time,
         current_timestamp AS transformation_time,
+        (raw_data ->> 'record_uuid') as record_uuid,
         batch_id,
         source_file
     FROM {{ source('raw', 'raw_customers') }}
 
     WHERE (raw_data ->> 'customer_id') IS NOT NULL AND (raw_data ->> 'email') ~* '^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$'
-    AND (raw_data ->> 'phone_number') ~ '^\d{10}$'
+    AND (raw_data ->> 'phone_number') ~ '^\d{10}$' AND (raw_data ->> 'record_uuid') IS NOT NULL
 ),
 
 locations_base AS (
@@ -182,7 +183,7 @@ temp_customer AS (
     SELECT DISTINCT ON (c.email) c.customer_id, c.first_name, c.last_name, c.email, c.phone_number, c.age, l.location_id, 
     c.operator, c.monthly_data_gb, c.monthly_bill_usd, c.registration_date, c.status, c.device_brand, 
     c.device_model, c.last_payment_date, c.credit_limit, c.data_usage_current_month, c.credit_score, 
-    c.latitude, c.longitude, c.ingestion_time,c.transformation_time, c.batch_id, c.source_file    
+    c.latitude, c.longitude, c.ingestion_time,c.transformation_time, c.record_uuid, c.batch_id, c.source_file    
     from customer c
     left join locations_base l
     on c.city = l.city

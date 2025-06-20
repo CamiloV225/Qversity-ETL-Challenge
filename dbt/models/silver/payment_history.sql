@@ -8,7 +8,7 @@ with source as (
 )
 
 SELECT
-  customer_id,
+  DISTINCT customer_id,
   (payment ->> 'date')::date AS payment_date,
   (payment ->> 'status') AS payment_status,
   CASE
