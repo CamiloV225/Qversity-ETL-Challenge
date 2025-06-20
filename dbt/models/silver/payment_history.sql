@@ -1,19 +1,32 @@
 {{ config(schema='silver') }} 
-with source as (
+
+with payment_h as (
     SELECT
-        (raw_data ->> 'customer_id')::bigint AS customer_id,
-        jsonb_array_elements(raw_data -> 'payment_history') AS payment
-    FROM {{ source('raw', 'raw_customers') }}
-    WHERE jsonb_typeof(raw_data -> 'payment_history') = 'array' AND raw_data ->> 'customer_id' IS NOT NULL
+        customer_id::bigint AS customer_id,
+        payment
+    FROM {{ ref('mobile_customers_cleaned') }}
+    WHERE jsonb_typeof(payment) = 'array'
+),
+
+exploded_payments as (
+    SELECT 
+        customer_id,
+        jsonb_array_elements(payment) AS payment_json
+    FROM payment_h
+),
+
+parsed_payments AS (
+    SELECT 
+        customer_id,
+        payment_json ->> 'date' AS payment_date,
+        CASE
+          WHEN payment_json ->> 'amount' = 'unknown' THEN NULL
+          ELSE payment_json ->> 'amount'
+        END AS payment_amount,
+        payment_json ->> 'status' AS payment_status
+    FROM exploded_payments
 )
 
-SELECT
-  DISTINCT customer_id,
-  (payment ->> 'date')::date AS payment_date,
-  (payment ->> 'status') AS payment_status,
-  CASE
-    WHEN (payment ->> 'amount') ~ '^\d+(\.\d+)?$'
-      THEN (payment ->> 'amount')::numeric
-    ELSE NULL
-  END AS payment_amount
-FROM source
+SELECT *
+FROM parsed_payments
+ORDER BY customer_id, payment_date

@@ -2,46 +2,40 @@
 with payment_date as (
     SELECT
         CASE
-            WHEN (raw_data ->> 'last_payment_date') ~ '^\d{2}/\d{2}/\d{4}' THEN
+            WHEN (last_payment_date) ~ '^\d{2}/\d{2}/\d{4}' THEN
             to_date(
-                split_part(raw_data ->> 'last_payment_date', '/', 3) || '-' ||  
-                split_part(raw_data ->> 'last_payment_date', '/', 2) || '-' ||  
-                split_part(raw_data ->> 'last_payment_date', '/', 1),           
+                split_part(last_payment_date, '/', 3) || '-' ||  
+                split_part(last_payment_date, '/', 2) || '-' ||  
+                split_part(last_payment_date, '/', 1),           
                 'YYYY-MM-DD')
-            WHEN (raw_data ->> 'last_payment_date') ~ '^\d{4}-\d{2}-\d{2}$' THEN
-                (raw_data ->> 'last_payment_date')::date
+            WHEN (last_payment_date) ~ '^\d{4}-\d{2}-\d{2}$' THEN
+                (last_payment_date)::date
             ELSE NULL
         END AS date
-    FROM {{ source('raw', 'raw_customers') }}
+    FROM {{ ref('mobile_customers_cleaned') }}
 ),
 
 registration_date AS (
     SELECT
         CASE
-            WHEN (raw_data ->> 'registration_date') ~ '^\d{2}/\d{2}/\d{4}' THEN
+            WHEN (registration_date) ~ '^\d{2}/\d{2}/\d{4}' THEN
             to_date(
-                split_part(raw_data ->> 'registration_date', '/', 3) || '-' ||  -- año
-                split_part(raw_data ->> 'registration_date', '/', 2) || '-' ||  -- mes
-                split_part(raw_data ->> 'registration_date', '/', 1),           -- dia
+                split_part(registration_date, '/', 3) || '-' ||  -- año
+                split_part(registration_date, '/', 2) || '-' ||  -- mes
+                split_part(registration_date, '/', 1),           -- dia
                 'YYYY-MM-DD')
-            WHEN (raw_data ->> 'registration_date') ~ '^\d{4}-\d{2}-\d{2}$' THEN
-                (raw_data ->> 'registration_date')::date
+            WHEN (registration_date) ~ '^\d{4}-\d{2}-\d{2}$' THEN
+                (registration_date)::date
             ELSE NULL
         END AS date
-    from {{ source('raw', 'raw_customers') }}
+    FROM {{ ref('mobile_customers_cleaned') }}
 ),
 
-payment_history as (
-    SELECT
-        (raw_data ->> 'customer_id')::bigint AS customer_id,
-        jsonb_array_elements(raw_data -> 'payment_history') AS payment
-    FROM {{ source('raw', 'raw_customers') }}
-    WHERE jsonb_typeof(raw_data -> 'payment_history') = 'array' AND raw_data ->> 'customer_id' IS NOT NULL
-),
 
 payment_history_date as (
-  SELECT (payment ->> 'date')::date AS date
-  FROM payment_history
+  SELECT customer_id::bigint,
+        (payment ->> 'date')::date AS date
+  FROM {{ ref('mobile_customers_cleaned') }}
 ),
 
 all_dates as (

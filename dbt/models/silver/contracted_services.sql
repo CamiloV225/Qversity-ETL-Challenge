@@ -1,13 +1,17 @@
 {{ config(schema='silver') }}  
-with source as (
+with services as (
     SELECT
-        (raw_data ->> 'customer_id')::bigint AS customer_id,
-        jsonb_array_elements_text(raw_data -> 'contracted_services') AS service
-    FROM {{ source('raw', 'raw_customers') }}
-    WHERE jsonb_typeof(raw_data -> 'contracted_services') = 'array' and raw_data ->> 'customer_id' IS NOT NULL
+        (customer_id)::bigint,
+        (contracted_service) AS service
+    FROM {{ ref('mobile_customers_cleaned') }}
+    WHERE jsonb_typeof(contracted_service) = 'array'
+),
+
+exploded_services AS (
+    SELECT 
+        customer_id,
+        lower(jsonb_array_elements_text(service)) AS service
+    FROM services
 )
 
-SELECT
-  customer_id,
-  lower(service) AS contracted_service
-FROM source
+SELECT * FROM exploded_services
