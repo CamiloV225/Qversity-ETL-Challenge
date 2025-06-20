@@ -1,2 +1,2 @@
-# qversity-data-2025-Cali-Juan_Camilo_Vargas
-Desc
+# Qversity Project 2025
+A data local data platform using Docker Compose with Airflow, PostgreSQL, dbt, and Python
