@@ -6,6 +6,7 @@ from airflow import DAG
 from dotenv import load_dotenv
 import json
 import psycopg2
+import subprocess
 import uuid
 import logging
 import requests
@@ -47,55 +48,11 @@ def create_tables(conn, cursor):
         );
     """)
     conn.commit()
-
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS customers (
-            customer_id BIGINT PRIMARY KEY,
-            first_name TEXT,
-            last_name TEXT,
-            email TEXT,
-            phone_number TEXT,
-            age INT CHECK (age >= 0),
-            country VARCHAR(5),
-            city TEXT,
-            operator TEXT,
-            plan_type TEXT,
-            monthly_data_gb NUMERIC,
-            monthly_bill_usd NUMERIC,
-            registration_date DATE,
-            status TEXT,
-            device_brand TEXT,
-            device_model TEXT,
-            record_uuid UUID,
-            last_payment_date DATE,
-            credit_limit NUMERIC,
-            data_usage_current_month NUMERIC,
-            latitude NUMERIC,
-            longitude NUMERIC,
-            credit_score INT
-        );
-    """)
-    conn.commit()
-
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS contracted_services (
-            customer_id BIGINT REFERENCES customers(customer_id),
-            service TEXT
-        );
-    """)
-    conn.commit()
-
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS payment_history (
-            customer_id BIGINT REFERENCES customers(customer_id),
-            payment_date DATE,
-            status TEXT,
-            amount NUMERIC
-        );
-    """)
-    conn.commit()
     logging.info("Table creation Successfully!")
 
+def run_dbt_command():
+    cmd = 'docker exec qversity-dbt-1 dbt run --select bronze'
+    subprocess.run(cmd, shell=True, check=True)
 
 def bronze_layer():
     logging.info("Bronze layer Started!")
@@ -125,13 +82,9 @@ def bronze_layer():
     conn.commit()
     cursor.close()
     conn.close()
+    #run_dbt_command()
     logging.info("Bronze layer done!")
 
-def silver_layer():
-    pass
-
-def gold_layer():
-    pass
 
 
 default_args = {
@@ -154,19 +107,22 @@ dag = DAG(
 
 
 bronze_layer = PythonOperator(
-    task_id="bronze_layer_task", python_callable=bronze_layer, dag=dag
+    task_id="bronze_layer_task", python_callable=bronze_layer,
+    dag=dag
 )
 
 
 silver_layer = BashOperator(
     task_id="silver_layer_task",
     dag=dag,
-    bash_command="docker exec qversity-dbt-1 dbt run"
+    bash_command="docker exec qversity-dbt-1 dbt run --select silver"
 )
 
 
-gold_layer = PythonOperator(
-    task_id="gold_layer_task", python_callable=gold_layer, dag=dag
+gold_layer = BashOperator(
+    task_id="gold_layer_task",
+    dag=dag,
+    bash_command="docker exec qversity-dbt-1 dbt run --select gold"
 )
 
 bronze_layer >> silver_layer >> gold_layer

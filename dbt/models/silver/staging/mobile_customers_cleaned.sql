@@ -1,7 +1,7 @@
 {{ config(schema='bronze')}} 
 with source AS (
     SELECT 
-        DISTINCT (raw_data ->> 'customer_id')::BIGINT AS customer_id,
+        (raw_data ->> 'customer_id')::BIGINT AS customer_id,
         (raw_data ->> 'first_name') AS first_name,
         (raw_data ->> 'last_name') AS last_name,
         (raw_data ->> 'email') AS email,
@@ -34,7 +34,7 @@ with source AS (
 )
 
 
-SELECT * FROM source
+SELECT DISTINCT ON (customer_id) * FROM source
 WHERE customer_id IS NOT NULL 
     AND record_uuid IS NOT NULL
     AND first_name IS NOT NULL

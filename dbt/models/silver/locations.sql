@@ -21,7 +21,9 @@ WITH location AS (
             WHEN lower(country) = 'argentina' AND lower(city) = 'rosario' THEN 16 
             ELSE 999
         END AS id,
+
         TRIM(lower(country)) AS country,
+        
         CASE
             WHEN lower(city) ilike 'are%' THEN 'arequipa'
             WHEN lower(city) ilike 'bog%' THEN 'bogotá'

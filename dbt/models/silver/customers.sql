@@ -97,8 +97,8 @@ with customer AS (
             ELSE lower(plan_type)
         END AS plan_type,
 
-        (monthly_data_gb)::float AS monthly_data_gb,
-        (monthly_bill_usd)::float AS monthly_bill_usd,
+        (monthly_data_gb)::numeric AS monthly_data_gb,
+        (monthly_bill_usd)::numeric AS monthly_bill_usd,
         -- En cuanto a los formatos de fecha, los registros poseen principalmente dos variantes: el formato europeo 'DD/MM/YYYY' y 
         -- el formato ISO estándar 'YYYY-MM-DD'. Para asegurar una conversión correcta y uniforme, se detecta el formato mediante  
         -- expresiones regulares, comprobando el tipo (EU o ISO), y en caso de EU se hace un split y se reorganiza en el formato ISO.
@@ -115,9 +115,10 @@ with customer AS (
         END AS registration_date,
         CASE
             WHEN lower(status) ilike 'a%' THEN 'active'
+            WHEN lower(status) ilike 'v%' THEN 'active'
             WHEN lower(status) ilike 'ina%' THEN 'inactive'
+            WHEN lower(status) ilike 'inv%' THEN 'inactive'
             WHEN lower(status) ilike 'sus%' THEN 'suspended'
-            WHEN lower(status) ilike 'v%' THEN 'valid'
             WHEN lower(status) = '' THEN NULL
             ELSE lower(status)
         END AS status,
@@ -150,9 +151,14 @@ with customer AS (
             ELSE NULL
         END AS last_payment_date,
 
-        (credit_limit)::float,
-        (data_usage_current_month)::float,
-        (credit_score)::float,
+        (credit_limit)::numeric,
+        (data_usage_current_month)::numeric,
+
+        CASE 
+            WHEN (credit_score)::numeric < 0 THEN NULL
+            ELSE (credit_score)::numeric
+        END AS credit_score,
+        
         ROUND((latitude)::numeric, 6) AS latitude,
         ROUND((longitude)::numeric, 6) AS longitude,
         ingestion_time,
@@ -183,7 +189,7 @@ locations_base AS (
 
 temp_customer AS (
     SELECT DISTINCT ON (c.email) c.customer_id, c.first_name, c.last_name, c.email, c.phone_number, c.age, l.location_id, 
-    c.operator, c.monthly_data_gb, c.monthly_bill_usd, c.registration_date, c.status, c.device_brand, 
+    c.operator, c.plan_type, c.monthly_data_gb, c.monthly_bill_usd, c.registration_date, c.status, c.device_brand, 
     c.device_model, c.last_payment_date, c.credit_limit, c.data_usage_current_month, c.credit_score, 
     c.latitude, c.longitude, c.ingestion_time,c.transformation_time, c.record_uuid, c.batch_id, c.source_file    
     from customer c
@@ -192,6 +198,7 @@ temp_customer AS (
     WHERE age BETWEEN 0 AND 100 
     AND c.first_name IS NOT NULL
     AND c.record_uuid IS NOT NULL
+    AND c.credit_score IS NOT NULL
     ORDER BY c.email
 )
 

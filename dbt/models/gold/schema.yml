@@ -1,0 +1,11 @@
+version: 2
+
+sources:
+  - name: silver         
+    schema: public_silver       
+    tables:
+      - name: customers 
+      - name: calendar 
+      - name: contracted_services 
+      - name: locations
+      - name: payment_history
