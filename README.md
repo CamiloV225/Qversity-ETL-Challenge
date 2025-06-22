@@ -141,7 +141,9 @@ Or execute the following command on the terminal:
 ```
 Once the DAG has successfully completed, open the pgAdmin access point in your browser. Log in using your credentials and navigate to the “Qversity” database. Under the “Schemas” tab, you’ll find the schemas corresponding to each layer of the data pipeline. Inside them, you’ll see all the resulting tables, including those that answer the business questions defined in the Gold layer.
 
-<img width="200" alt="Database_structure" src="https://github.com/user-attachments/assets/3de7c1b6-6ce7-41c2-979b-66730111b3c3" />
+<p align="center">
+  <img width="200" alt="Database_structure" src="https://github.com/user-attachments/assets/3de7c1b6-6ce7-41c2-979b-66730111b3c3" />
+</p>
 
 
 ## Useful Commands
