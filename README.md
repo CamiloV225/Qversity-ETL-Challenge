@@ -4,7 +4,7 @@ This repository contains a local data platform architecture for telecom analytic
 
 ---
 
-## Architecture
+## 🚧 Architecture
 
 This project implements a multi-layered data pipeline:
 
@@ -119,10 +119,25 @@ Edit the file located at pgadmin/servers.json so pgAdmin connects to your Postgr
 ## Access Points
 
 - **Airflow UI**: http://localhost:8080 
-- **PostgreSQL**: http://localhost:5432
+- **PostgreSQL**: localhost:5432
 - **PgAdmin**: http://localhost:80 (PgAdmin might ask you to setup a password to enter the interface for the first time & the password for the database)
 
-- ## Common Commands
+## Basic steps to Run the Project
+```bash
+# First, execute the docker compose file to iniciate all the services needed for the project
+- docker compose up -d
+
+# Once everything is running, simply open your browser and navigate to the Airflow's access point:
+- http://localhost:8080 (You need to enter the creditials for Airflow)
+and then search for the Dag called qversity_project_JCV and run it.
+
+Or execute the following command on the terminal:
+- docker compose exec airflow airflow dags trigger qversity_project_JCV
+
+Once the dag is completed, enter the PgAdmin acces point in your browser, enter the credentials, look
+```
+
+## Useful Commands
 
 ### Airflow
 ```bash
@@ -148,10 +163,6 @@ dbt run --select gold
 
 # Test data quality
 dbt test
-
-# Generate documentation
-dbt docs generate
-dbt docs serve
 ```
 
 ## Testing
