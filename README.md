@@ -151,7 +151,8 @@ Inside them, you’ll see all the resulting tables, including those that answer 
 </p>
 
 If you need to check how is everything built, check the image below to see the relation between tables on the silver layer.
-[qversity project diagram (1)-part-2.pdf](https://github.com/user-attachments/files/20853491/qversity.project.diagram.1.-part-2.pdf)
+![qversity project diagram](https://github.com/user-attachments/assets/ab1f0589-e760-4818-855e-8c33fb417000)
+
 
 ## Useful Commands
 
