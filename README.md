@@ -219,6 +219,6 @@ dbt test
 docker compose exec dbt dbt test
 
 # Run specific test
-docker compose exec qversity-dbt-1 dbt run --select silver
+docker compose exec dbt dbt test --select silver
 ```
 
