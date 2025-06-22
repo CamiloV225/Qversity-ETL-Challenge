@@ -139,7 +139,9 @@ Or execute the following command on the terminal:
 ```bash
 - docker compose exec airflow airflow dags trigger qversity_project_JCV
 ```
-Once the dag is completed, enter the PgAdmin acces point in your browser, enter the credentials, look
+Once the dag is completed, enter the PgAdmin acces point in your browser, enter the credentials and look for the Qversity database, you should see inside of the Schema's tab the ones corresponding to each layer, there you will find all the tables result of this project, and the answer for the bussiness questions of the Gold layer:
+
+<img width="179" alt="Database_structure" src="https://github.com/user-attachments/assets/3de7c1b6-6ce7-41c2-979b-66730111b3c3" />
 
 
 ## Useful Commands
