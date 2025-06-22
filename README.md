@@ -1,4 +1,4 @@
-# Qversity Project
+# 🖥️ Qversity Project
 
 This repository contains a local data platform architecture for telecom analytics built with Docker Compose, PostgreSQL, Airflow, dbt, and pgAdmin. The project follows the **Bronze → Silver → Gold** (Medallion Architecture) modeling approach and addresses multiple business questions based on customer, location, calendar and payment data.
 
@@ -116,7 +116,7 @@ Edit the file located at pgadmin/servers.json so pgAdmin connects to your Postgr
 }
 ```
 
-## Access Points
+## 🌐 Access Points
 
 - **Airflow UI**: http://localhost:8080 
 - **PostgreSQL**: localhost:5432
