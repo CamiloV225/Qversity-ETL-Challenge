@@ -153,7 +153,7 @@ Inside them, you’ll see all the resulting tables, including those that answer 
 If you need to check how is everything built, check the image below to see the relation between tables on the silver layer.
 
 <p align="center">
-  <img width="500" height="500" alt="schema" src="https://github.com/user-attachments/assets/59a49d13-ec6a-4088-8d2f-eda1a824bac2" />
+  <img width="650" height="500" alt="schema" src="https://github.com/user-attachments/assets/59a49d13-ec6a-4088-8d2f-eda1a824bac2" />
 </p>
 
 
