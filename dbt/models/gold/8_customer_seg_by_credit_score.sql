@@ -4,7 +4,7 @@ WITH credit_segmented AS (
         customer_id,
         CASE
             WHEN credit_score >= 550 THEN 'high'
-            WHEN credit_score >= 250 THEN 'medium'
+            WHEN credit_score >= 275 THEN 'medium'
             WHEN credit_score >= 1 THEN 'low'
             ELSE 'unknown'
         END AS credit_segment

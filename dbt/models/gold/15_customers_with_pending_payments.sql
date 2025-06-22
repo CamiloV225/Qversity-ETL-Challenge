@@ -1,6 +1,6 @@
 {{ config(schema='gold')}} 
 WITH pending_payments AS (
-    SELECT DISTINCT
+    SELECT DISTINCT on (c.customer_id)
     c.customer_id,
     c.first_name,
     c.last_name,

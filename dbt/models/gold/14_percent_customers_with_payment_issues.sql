@@ -1,11 +1,13 @@
 {{ config(schema='gold')}} 
 WITH all_customers AS (
-    SELECT customer_id
+    SELECT DISTINCT ON (customer_id)
+    customer_id
     FROM {{ ref('customers') }}
 ),
 
 customers_with_issues AS (
-    SELECT DISTINCT customer_id
+    SELECT DISTINCT ON (customer_id)
+    customer_id
     FROM {{ ref('payment_history') }}
     WHERE LOWER(payment_status) IN ('failed', 'overdue', 'rejected') -- ajusta según tus valores reales
 )
