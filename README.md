@@ -178,6 +178,29 @@ dbt run --select gold
 dbt test
 ```
 
+## Docker
+```bash
+# Executes the docker-compose file
+- docker compose up -d
+
+# Check service status
+- docker compose ps
+
+# View all service logs
+- docker compose logs -f
+
+# View specific service logs
+- docker compose logs -f airflow
+- docker compose logs -f dbt
+- docker compose logs -f postgres
+
+# Stop services
+- docker compose down
+
+# Remove volumes (⚠️ deletes all data)
+- docker compose down -v
+```
+
 ## Testing
 
 ```bash
