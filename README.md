@@ -86,7 +86,7 @@ PGADMIN_DEFAULT_PASSWORD=your_password
 ```
 
 ### 2. Configure dbt’s profiles.yml
-Edit the file located at dbt/profiles.yml to match the .env credentials:
+Create or Edit the file located at dbt/profiles.yml to match the .env credentials:
 ```
 qversity:
   target: dev
@@ -94,12 +94,12 @@ qversity:
     dev:
       type: postgres
       host: postgres
-      user: YOUR_DB_USER
-      password: YOUR_DB_PASSWORD
-      dbname: YOUR_DB_NAME
-      schema: public
-      threads: 1
+      user: "{{ env_var('POSTGRES_USER') }}"
+      password: "{{ env_var('POSTGRES_PASSWORD') }}"
       port: 5432
+      dbname: "{{ env_var('POSTGRES_DB') }}"
+      schema: public
+      threads: 1 
 ```
 
 ### 3. Configure servers.json for pgAdmin
