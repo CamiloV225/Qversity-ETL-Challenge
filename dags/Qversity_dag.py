@@ -50,9 +50,6 @@ def create_tables(conn, cursor):
     conn.commit()
     logging.info("Table creation Successfully!")
 
-def run_dbt_command():
-    cmd = 'docker exec qversity-dbt-1 dbt run --select bronze'
-    subprocess.run(cmd, shell=True, check=True)
 
 def bronze_layer():
     logging.info("Bronze layer Started!")
@@ -82,7 +79,6 @@ def bronze_layer():
     conn.commit()
     cursor.close()
     conn.close()
-    #run_dbt_command()
     logging.info("Bronze layer done!")
 
 
@@ -115,14 +111,14 @@ bronze_layer = PythonOperator(
 silver_layer = BashOperator(
     task_id="silver_layer_task",
     dag=dag,
-    bash_command="docker exec qversity-dbt-1 dbt run --select silver"
+    bash_command="docker exec dbt dbt run --select silver"
 )
 
 
 gold_layer = BashOperator(
     task_id="gold_layer_task",
     dag=dag,
-    bash_command="docker exec qversity-dbt-1 dbt run --select gold"
+    bash_command="docker exec dbt dbt run --select gold"
 )
 
 bronze_layer >> silver_layer >> gold_layer
