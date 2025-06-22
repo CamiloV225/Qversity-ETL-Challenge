@@ -103,7 +103,7 @@ qversity:
 ```
 
 ### 3. Configure servers.json for pgAdmin
-Edit the file located at pgadmin/servers.json so pgAdmin connects to your Postgres service:
+Create a file called servers.json locate at pgadmin/ so pgAdmin connects to your Postgres service:
 ```
 {
   "Servers": {
