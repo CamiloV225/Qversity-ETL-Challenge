@@ -123,16 +123,22 @@ Edit the file located at pgadmin/servers.json so pgAdmin connects to your Postgr
 - **PgAdmin**: http://localhost:80 (PgAdmin might ask you to setup a password to enter the interface for the first time & the password for the database)
 
 ## Basic steps to Run the Project
-```bash
-# First, execute the docker compose file to iniciate all the services needed for the project
-- docker compose up -d
 
-# Once everything is running, simply open your browser and navigate to the Airflow's access point:
-- http://localhost:8080 (You need to enter the creditials for Airflow)
+### First, execute the docker compose file to iniciate all the services needed for the project
+```bash
+- docker compose up -d
+```
+
+### Once everything is running, simply open your browser and navigate to the Airflow's access point:
+```bash
+- http://localhost:8080 #(You need to enter the creditials for Airflow)
+```
 and then search for the Dag called qversity_project_JCV and run it.
 
-Or execute the following command on the terminal:
+### Or execute the following command on the terminal:
+```bash
 - docker compose exec airflow airflow dags trigger qversity_project_JCV
+```
 
 Once the dag is completed, enter the PgAdmin acces point in your browser, enter the credentials, look
 ```
