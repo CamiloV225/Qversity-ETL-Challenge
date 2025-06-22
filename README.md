@@ -126,7 +126,7 @@ Edit the file located at pgadmin/servers.json so pgAdmin connects to your Postgr
 - **PostgreSQL**: localhost:5432
 - **PgAdmin**: http://localhost:80 (PgAdmin might ask you to setup a password to enter the interface for the first time & the password for the database)
 
-## Basic steps to Run the Project
+## Basic steps to Run the pipeline
 
 First, execute the docker compose file to iniciate all the services needed for the project
 ```bash
@@ -212,7 +212,7 @@ dbt test
 - docker compose down -v
 ```
 
-## Testing
+## Run tests
 
 ```bash
 # Run dbt tests
