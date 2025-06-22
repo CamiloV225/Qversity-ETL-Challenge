@@ -1,6 +1,6 @@
 # Qversity Project
 
-This repository contains a local data platform architecture for telecom analytics built with Docker Compose, PostgreSQL, Airflow, dbt, and pgAdmin. The project follows the **Bronze → Silver → Gold** (Medallion Architecture) modeling approach and addresses multiple business questions based on customer, service, and payment data.
+This repository contains a local data platform architecture for telecom analytics built with Docker Compose, PostgreSQL, Airflow, dbt, and pgAdmin. The project follows the **Bronze → Silver → Gold** (Medallion Architecture) modeling approach and addresses multiple business questions based on customer, location, calendar and payment data.
 
 ---
 
