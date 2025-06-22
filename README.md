@@ -2,6 +2,10 @@
 
 This repository contains a local data platform architecture for telecom analytics built with Docker Compose, PostgreSQL, Airflow, dbt, and pgAdmin. The project follows the **Bronze → Silver → Gold** (Medallion Architecture) modeling approach and addresses multiple business questions based on customer, location, calendar and payment data.
 
+ ## Participant
+ - **Name**: Juan Camilo Vargas Velez
+ - **Email**: camilovargas1202@hotmail.com
+
 ---
 
 ## 🚧 Architecture
@@ -122,7 +126,7 @@ Edit the file located at pgadmin/servers.json so pgAdmin connects to your Postgr
 - **PostgreSQL**: localhost:5432
 - **PgAdmin**: http://localhost:80 (PgAdmin might ask you to setup a password to enter the interface for the first time & the password for the database)
 
-## Basic steps to Run the Project
+## Basic steps to Run the pipeline
 
 First, execute the docker compose file to iniciate all the services needed for the project
 ```bash
@@ -208,13 +212,13 @@ dbt test
 - docker compose down -v
 ```
 
-## Testing
+## Run tests
 
 ```bash
 # Run dbt tests
 docker compose exec dbt dbt test
 
 # Run specific test
-docker compose exec qversity-dbt-1 dbt run --select silver
+docker compose exec dbt dbt test --select silver
 ```
 
