@@ -150,6 +150,9 @@ Inside them, you’ll see all the resulting tables, including those that answer 
   <img width="236" alt="schema" src="https://github.com/user-attachments/assets/6226aee7-5271-4ce4-be6a-e248b0d6e580" />
 </p>
 
+If you need to check how is everything built, check the image below to see the relation between tables on the silver layer.
+[qversity project diagram (1)-part-2.pdf](https://github.com/user-attachments/files/20853491/qversity.project.diagram.1.-part-2.pdf)
+
 ## Useful Commands
 
 ### Airflow
