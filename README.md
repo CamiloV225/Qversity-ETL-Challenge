@@ -119,8 +119,8 @@ Edit the file located at pgadmin/servers.json so pgAdmin connects to your Postgr
 ## Access Points
 
 - **Airflow UI**: http://localhost:8080 
-- **PostgreSQL**: localhost:5432
-- **PgAdmin**: localhost:80 (PgAdmin might ask you to setup a password to enter the interface for the first time & the password for the database)
+- **PostgreSQL**: http://localhost:5432
+- **PgAdmin**: http://localhost:80 (PgAdmin might ask you to setup a password to enter the interface for the first time & the password for the database)
 
 - ## Common Commands
 
