@@ -145,7 +145,7 @@ Once the DAG has successfully completed, open the pgAdmin access point in your b
   <img width="200" alt="Database_structure" src="https://github.com/user-attachments/assets/3de7c1b6-6ce7-41c2-979b-66730111b3c3" />
 </p>
 
-Inside them, you’ll see all the resulting tables, including those that answer the business questions defined in the Gold layer.
+Inside them, you’ll see all the resulting tables, including those that answer the business questions defined in the Gold layer. To see them you can right-click them, you will see the tab "View/Edit Data" and select "All Rows".
 <p align="center">
   <img width="236" alt="schema" src="https://github.com/user-attachments/assets/6226aee7-5271-4ce4-be6a-e248b0d6e580" />
 </p>
